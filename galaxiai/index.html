@@ -1,0 +1,1517 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Little Universe ♡</title>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    overflow:hidden;
+    background:#02030b;
+    color:#fff;
+    font-family:Montserrat,sans-serif;
+}
+
+canvas{display:block}
+
+#loading{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:grid;
+    place-content:center;
+    gap:18px;
+    text-align:center;
+    background:#02030b;
+    transition:opacity 1s;
+}
+
+#loading span{
+    font-family:Georgia,serif;
+    font-size:55px;
+    color:#e9b9ff;
+    animation:pulse 2s infinite;
+}
+
+#loading p{
+    color:#c9a9df;
+    font-size:9px;
+    letter-spacing:5px;
+}
+
+@keyframes pulse{
+    50%{transform:scale(1.2);text-shadow:0 0 35px #c47bff}
+}
+
+#interface{
+    position:fixed;
+    inset:0;
+    z-index:5;
+    pointer-events:none;
+}
+
+.top{
+    position:absolute;
+    top:27px;
+    left:35px;
+    right:35px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-family:'Cormorant Garamond',serif;
+    font-size:25px;
+    letter-spacing:5px;
+    color:#f2ddff;
+    text-shadow:0 0 20px #c28bff77;
+}
+
+.logo small{
+    display:block;
+    margin-top:5px;
+    font-family:Montserrat,sans-serif;
+    font-size:8px;
+    letter-spacing:4px;
+    color:#b9a0d3;
+}
+
+.status{
+    color:#d4b7ed;
+    font-size:9px;
+    letter-spacing:3px;
+}
+
+.intro{
+    position:absolute;
+    top:15%;
+    left:50%;
+    transform:translateX(-50%);
+    width:90%;
+    text-align:center;
+    transition:opacity 1s;
+}
+
+.intro h1{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(43px,7vw,82px);
+    font-weight:300;
+    letter-spacing:5px;
+    color:#f5e9ff;
+    text-shadow:0 0 35px #b77bff88,0 0 90px #7046b355;
+}
+
+.intro p{
+    margin-top:12px;
+    color:#c7b1df;
+    font-size:9px;
+    letter-spacing:5px;
+}
+
+#cosmicQuote{
+    position:absolute;
+    top:69%;
+    left:50%;
+    width:90%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(22px,3.4vw,38px);
+    font-weight:300;
+    letter-spacing:4px;
+    color:#f6eaff;
+    text-shadow:0 0 15px #d59cff,0 0 40px #a45fff;
+    opacity:0;
+    transition:opacity 1.5s;
+}
+
+#cosmicQuote.visible{opacity:1}
+
+.hint{
+    position:absolute;
+    bottom:91px;
+    left:50%;
+    transform:translateX(-50%);
+    width:95%;
+    text-align:center;
+    color:#b9a5d1;
+    font-size:8px;
+    letter-spacing:3px;
+}
+
+.controls{
+    position:absolute;
+    bottom:27px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:9px;
+    width:95%;
+    pointer-events:auto;
+}
+
+.btn{
+    padding:12px 17px;
+    border:1px solid #cda2ed66;
+    border-radius:30px;
+    background:#100b20b8;
+    color:#ead8ff;
+    backdrop-filter:blur(15px);
+    font-size:9px;
+    letter-spacing:1px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.btn:hover{
+    background:#6d428b88;
+    border-color:#e8c6ff;
+    box-shadow:0 0 25px #b879e855;
+}
+
+#music{
+    position:fixed;
+    top:100px;
+    right:30px;
+    z-index:8;
+    pointer-events:auto;
+    display:grid;
+    justify-items:end;
+    gap:8px;
+}
+
+#music button{
+    padding:10px 15px;
+    border:1px solid #d3a6ef66;
+    border-radius:30px;
+    background:#100b20c9;
+    color:#ead8ff;
+    font-size:9px;
+    cursor:pointer;
+    backdrop-filter:blur(12px);
+}
+
+#trackTitle{
+    padding:8px 13px;
+    border:1px solid #d3a6ef44;
+    border-radius:20px;
+    background:#100b208c;
+    color:#d9c4eb;
+    font-family:'Cormorant Garamond',serif;
+    font-size:16px;
+    letter-spacing:1px;
+}
+
+#map{
+    position:absolute;
+    right:25px;
+    bottom:110px;
+    width:135px;
+    height:90px;
+    padding:8px;
+    border:1px solid #bd9bdb44;
+    border-radius:12px;
+    background:#0c0818a8;
+    backdrop-filter:blur(10px);
+}
+
+#radar{width:100%;height:100%}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    z-index:20;
+    display:grid;
+    place-items:center;
+    padding:20px;
+    background:#03020bd9;
+    backdrop-filter:blur(15px);
+    opacity:0;
+    visibility:hidden;
+    transition:.4s;
+}
+
+.overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.panel{
+    width:min(430px,95vw);
+    max-height:90vh;
+    overflow-y:auto;
+    padding:40px 30px;
+    border:1px solid #d6a9ee88;
+    border-radius:20px;
+    background:linear-gradient(145deg,#211431,#0a0815);
+    box-shadow:0 0 70px #a65cda33;
+    text-align:center;
+    transform:translateY(18px);
+    transition:.4s;
+}
+
+.show .panel{transform:translateY(0)}
+
+.symbol{
+    margin-bottom:16px;
+    color:#e8baff;
+    font-size:34px;
+}
+
+.panel h2{
+    margin-bottom:17px;
+    color:#f5e0ff;
+    font-family:'Cormorant Garamond',serif;
+    font-size:38px;
+    font-weight:300;
+}
+
+.panel p{
+    color:#dfcce9;
+    font-family:'Cormorant Garamond',serif;
+    font-size:20px;
+    line-height:1.7;
+}
+
+.close{
+    margin-top:27px;
+    padding:11px 22px;
+    border:1px solid #d7a7ed;
+    border-radius:30px;
+    background:transparent;
+    color:#f0dfff;
+    font-size:9px;
+    letter-spacing:2px;
+    cursor:pointer;
+}
+
+#lettersGallery .panel{
+    width:min(980px,95vw);
+    padding:clamp(24px,4vw,42px);
+}
+
+.letters-heading{
+    margin-bottom:25px;
+}
+
+.letters-heading p{
+    color:#cbb6df;
+    font-size:16px;
+}
+
+.letters-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:16px;
+}
+
+.letter-card{
+    display:grid;
+    gap:10px;
+    padding:10px;
+    border:1px solid #d6a8ed66;
+    border-radius:15px;
+    background:linear-gradient(145deg,#241632,#100b1b);
+    color:#f3e5ff;
+    font-family:'Cormorant Garamond',serif;
+    font-size:19px;
+    cursor:pointer;
+    transition:transform .25s,border-color .25s,box-shadow .25s;
+}
+
+.letter-card:hover{
+    transform:translateY(-5px);
+    border-color:#e8c6ff;
+    box-shadow:0 10px 30px #b879e844;
+}
+
+.letter-card img{
+    display:block;
+    width:100%;
+    aspect-ratio:3/4;
+    border-radius:9px;
+    background:#fff;
+    object-fit:contain;
+}
+
+#letterReader{
+    z-index:31;
+}
+
+.letter-reader-panel{
+    display:grid;
+    justify-items:center;
+    gap:13px;
+    width:min(850px,95vw);
+    max-height:94vh;
+    padding:14px;
+    border:1px solid #d6a8ed88;
+    border-radius:18px;
+    background:linear-gradient(145deg,#211431,#0a0815);
+    box-shadow:0 0 70px #a65cda33;
+}
+
+.letter-reader-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    color:#ead8f1;
+    font-family:'Cormorant Garamond',serif;
+    font-size:21px;
+}
+
+.gallery-close{
+    width:40px;
+    height:40px;
+    border:1px solid #d6a8ed77;
+    border-radius:50%;
+    background:#1a1027;
+    color:white;
+    font-size:23px;
+    cursor:pointer;
+}
+
+.letter-reader-image{
+    display:block;
+    max-width:100%;
+    max-height:70vh;
+    border-radius:8px;
+    background:#fff;
+    object-fit:contain;
+}
+
+.letter-reader-controls{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+}
+
+.letter-reader-controls button{
+    padding:10px 17px;
+    border:1px solid #d6a8ed77;
+    border-radius:25px;
+    background:#1a1027;
+    color:white;
+    cursor:pointer;
+}
+
+@media(max-width:650px){
+    .top{top:17px;left:17px;right:17px}
+    .logo{font-size:18px;letter-spacing:3px}
+    .logo small{font-size:7px}
+    .status{font-size:7px}
+    .intro{top:20%}
+    .intro h1{letter-spacing:2px}
+    .intro p{font-size:7px;letter-spacing:2px}
+    .controls{bottom:17px;gap:6px}
+    .btn{padding:10px 12px;font-size:8px}
+    .hint{bottom:93px;font-size:7px}
+    #map{width:105px;height:72px;right:10px;bottom:120px}
+    #music{top:75px;right:12px}
+    #music button{font-size:8px;padding:9px 11px}
+    #cosmicQuote{top:66%;letter-spacing:2px}
+    .letters-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .letter-card{padding:7px;font-size:17px}
+    .letters-heading p{font-size:14px}
+    .letter-reader-image{max-height:68vh}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+    <span>✧</span>
+    <p>CREANDO NUESTRO UNIVERSO...</p>
+</div>
+
+<div id="interface">
+
+    <div class="top">
+        <div class="logo">
+            OUR LITTLE UNIVERSE
+            <small>A PLACE MADE OF STARS</small>
+        </div>
+        <div class="status">✦ INFINITE LOVE</div>
+    </div>
+
+    <div class="intro" id="intro">
+        <h1>Un universo para ti</h1>
+        <p>HAY MILLONES DE ESTRELLAS, PERO ESTE UNIVERSO ES TUYO</p>
+    </div>
+
+    <div id="cosmicQuote"></div>
+    <div class="hint">
+        ARRASTRA PARA EXPLORAR · ACÉRCATE A LOS PLANETAS · DESCUBRE SUS MENSAJES
+    </div>
+
+    <div id="map">
+        <canvas id="radar" width="280" height="180"></canvas>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="home">⌂ CENTRO</button>
+        <button class="btn" id="spin">✧ PAUSAR GIRO</button>
+        <button class="btn" id="constellation">✧ CONSTELACIÓN</button>
+        <button class="btn" id="lettersOpen">♡ 7 CARTAS</button>
+    </div>
+</div>
+
+<div id="music">
+    <button id="musicButton">♫ ACTIVAR MÚSICA</button>
+    <span id="trackTitle">♪ Por eso canto ♡</span>
+    <audio id="audio" loop preload="none">
+        <source src="./galaaa.mpeg" type="audio/mpeg">
+    </audio>
+</div>
+
+<div class="overlay" id="card">
+    <div class="panel">
+        <div class="symbol">✧</div>
+        <h2 id="planetTitle"></h2>
+        <p id="planetMessage"></p>
+        <button class="close" id="closeCard">VOLVER AL UNIVERSO</button>
+    </div>
+</div>
+
+<div class="overlay" id="lettersGallery" aria-label="Siete cartas para ti">
+    <section class="panel">
+        <div class="letters-heading">
+            <div class="symbol">♡</div>
+            <h2>Siete cartas para ti</h2>
+            <p>Pequeños pedacitos de todo lo que siento por ti.</p>
+        </div>
+        <div class="letters-grid" id="lettersGrid"></div>
+        <button class="close" id="closeLetters">VOLVER AL UNIVERSO</button>
+    </section>
+</div>
+
+<div class="overlay" id="letterReader">
+    <section class="letter-reader-panel">
+        <div class="letter-reader-top">
+            <span id="letterCaption"></span>
+            <button class="gallery-close" id="closeLetterReader" aria-label="Cerrar carta">×</button>
+        </div>
+        <img class="letter-reader-image" id="letterImage" alt="">
+        <div class="letter-reader-controls">
+            <button id="previousLetter">← ANTERIOR</button>
+            <button id="nextLetter">SIGUIENTE →</button>
+        </div>
+    </section>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+/* ESCENA */
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02030b);
+scene.fog = new THREE.FogExp2(0x050514,0.0007);
+
+const camera = new THREE.PerspectiveCamera(
+    55,window.innerWidth/window.innerHeight,.1,1500
+);
+camera.position.set(0,20,75);
+
+const renderer = new THREE.WebGLRenderer({
+    antialias:true,
+    alpha:false,
+    powerPreference:'high-performance'
+});
+
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.35;
+document.body.appendChild(renderer.domElement);
+
+/* CONTROLES */
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=.045;
+controls.minDistance=7;
+controls.maxDistance=150;
+controls.rotateSpeed=.5;
+controls.zoomSpeed=.7;
+controls.autoRotate=true;
+controls.autoRotateSpeed=.16;
+controls.target.set(0,0,0);
+
+/* LUCES */
+
+scene.add(new THREE.AmbientLight(0x8e8cbf,.8));
+
+const centralLight=new THREE.PointLight(0xffd2f2,180,160);
+centralLight.position.set(0,0,0);
+scene.add(centralLight);
+
+const blueLight=new THREE.PointLight(0x526dff,80,100);
+blueLight.position.set(-35,12,-30);
+scene.add(blueLight);
+
+/* TEXTURAS DE NEBULOSA */
+
+function createNebulaTexture(color1,color2){
+    const canvas=document.createElement('canvas');
+    canvas.width=512;
+    canvas.height=512;
+    const ctx=canvas.getContext('2d');
+
+    const gradient=ctx.createRadialGradient(256,256,5,256,256,250);
+    gradient.addColorStop(0,color1);
+    gradient.addColorStop(.2,color2);
+    gradient.addColorStop(.48,'rgba(90,55,190,.19)');
+    gradient.addColorStop(1,'rgba(0,0,0,0)');
+
+    ctx.fillStyle=gradient;
+    ctx.fillRect(0,0,512,512);
+
+    for(let i=0;i<130;i++){
+        const x=Math.random()*512;
+        const y=Math.random()*512;
+        const r=5+Math.random()*45;
+
+        const cloud=ctx.createRadialGradient(x,y,0,x,y,r);
+        cloud.addColorStop(0,'rgba(220,175,255,.07)');
+        cloud.addColorStop(1,'rgba(120,90,255,0)');
+
+        ctx.fillStyle=cloud;
+        ctx.beginPath();
+        ctx.arc(x,y,r,0,Math.PI*2);
+        ctx.fill();
+    }
+
+    const texture=new THREE.CanvasTexture(canvas);
+    texture.colorSpace=THREE.SRGBColorSpace;
+    return texture;
+}
+
+const nebulaTextures=[
+    createNebulaTexture('rgba(255,190,245,.65)','rgba(190,100,255,.35)'),
+    createNebulaTexture('rgba(110,140,255,.55)','rgba(80,90,220,.28)'),
+    createNebulaTexture('rgba(255,150,210,.48)','rgba(150,75,220,.3)')
+];
+
+const nebulaGroup=new THREE.Group();
+scene.add(nebulaGroup);
+
+for(let i=0;i<65;i++){
+    const texture=nebulaTextures[i%nebulaTextures.length];
+
+    const sprite=new THREE.Sprite(
+        new THREE.SpriteMaterial({
+            map:texture,
+            transparent:true,
+            opacity:.18+Math.random()*.2,
+            blending:THREE.AdditiveBlending,
+            depthWrite:false
+        })
+    );
+
+    const angle=Math.random()*Math.PI*2;
+    const radius=10+Math.random()*48;
+    const size=12+Math.random()*32;
+
+    sprite.position.set(
+        Math.cos(angle)*radius,
+        (Math.random()-.5)*18,
+        Math.sin(angle)*radius
+    );
+
+    sprite.scale.set(size,size*(.65+Math.random()*.6),1);
+    nebulaGroup.add(sprite);
+}
+
+/* POLVO CÓSMICO */
+
+const dustPositions=[];
+const dustColors=[];
+
+for(let i=0;i<18000;i++){
+    const radius=15+Math.random()*95;
+    const angle=Math.random()*Math.PI*2;
+
+    dustPositions.push(
+        Math.cos(angle)*radius,
+        (Math.random()-.5)*55,
+        Math.sin(angle)*radius
+    );
+
+    const color=new THREE.Color().setHSL(
+        .65+Math.random()*.18,
+        .5,
+        .65+Math.random()*.3
+    );
+
+    dustColors.push(color.r,color.g,color.b);
+}
+
+const dustGeometry=new THREE.BufferGeometry();
+dustGeometry.setAttribute('position',new THREE.Float32BufferAttribute(dustPositions,3));
+dustGeometry.setAttribute('color',new THREE.Float32BufferAttribute(dustColors,3));
+
+const dust=new THREE.Points(
+    dustGeometry,
+    new THREE.PointsMaterial({
+        size:.13,
+        vertexColors:true,
+        transparent:true,
+        opacity:.65,
+        sizeAttenuation:true,
+        blending:THREE.AdditiveBlending,
+        depthWrite:false
+    })
+);
+scene.add(dust);
+
+/* GALAXIA ESPIRAL */
+
+const galaxy=new THREE.Group();
+scene.add(galaxy);
+
+const starPositions=[];
+const starColors=[];
+const armCount=5;
+const totalStars=85000;
+
+const colors=[
+    new THREE.Color(0xffffff),
+    new THREE.Color(0xffd9f5),
+    new THREE.Color(0xd5b5ff),
+    new THREE.Color(0x9daeff),
+    new THREE.Color(0xffa9dc)
+];
+
+for(let i=0;i<totalStars;i++){
+    const radius=Math.pow(Math.random(),.72)*43;
+    const arm=i%armCount;
+    const angle=arm*(Math.PI*2/armCount)+radius*.24;
+
+    const spread=(Math.random()-.5)*radius*.2;
+    const theta=angle+spread*.07;
+
+    const x=Math.cos(theta)*radius+(Math.random()-.5)*radius*.12;
+    const z=Math.sin(theta)*radius+(Math.random()-.5)*radius*.12;
+    const y=(Math.random()-.5)*Math.max(.5,radius*.07);
+
+    starPositions.push(x,y,z);
+
+    const color=colors[Math.floor(Math.random()*colors.length)];
+    const brightness=.65+Math.random()*.65;
+
+    starColors.push(
+        color.r*brightness,
+        color.g*brightness,
+        color.b*brightness
+    );
+}
+
+const galaxyGeometry=new THREE.BufferGeometry();
+galaxyGeometry.setAttribute('position',new THREE.Float32BufferAttribute(starPositions,3));
+galaxyGeometry.setAttribute('color',new THREE.Float32BufferAttribute(starColors,3));
+
+const galaxyMaterial=new THREE.PointsMaterial({
+    size:.15,
+    vertexColors:true,
+    transparent:true,
+    opacity:.92,
+    sizeAttenuation:true,
+    blending:THREE.AdditiveBlending,
+    depthWrite:false
+});
+
+const galaxyStars=new THREE.Points(galaxyGeometry,galaxyMaterial);
+galaxy.add(galaxyStars);
+
+/* NÚCLEO */
+
+const nucleus=new THREE.Mesh(
+    new THREE.SphereGeometry(2.2,48,48),
+    new THREE.MeshBasicMaterial({color:0xffe4fa})
+);
+galaxy.add(nucleus);
+
+const nucleusGlow=new THREE.Sprite(
+    new THREE.SpriteMaterial({
+        map:nebulaTextures[0],
+        transparent:true,
+        opacity:.8,
+        blending:THREE.AdditiveBlending,
+        depthWrite:false
+    })
+);
+nucleusGlow.scale.set(30,30,1);
+galaxy.add(nucleusGlow);
+
+/* ESTRELLAS DE FONDO */
+
+const backgroundPositions=[];
+
+for(let i=0;i<10000;i++){
+    backgroundPositions.push(
+        (Math.random()-.5)*700,
+        (Math.random()-.5)*700,
+        (Math.random()-.5)*700
+    );
+}
+
+const backgroundGeometry=new THREE.BufferGeometry();
+backgroundGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(backgroundPositions,3)
+);
+
+const backgroundStars=new THREE.Points(
+    backgroundGeometry,
+    new THREE.PointsMaterial({
+        color:0xd9d9ff,
+        size:.2,
+        transparent:true,
+        opacity:.8
+    })
+);
+scene.add(backgroundStars);
+
+/* TEXTURAS DE PLANETAS */
+
+function makePlanetTexture(base,secondary){
+    const canvas=document.createElement('canvas');
+    canvas.width=1024;
+    canvas.height=512;
+
+    const ctx=canvas.getContext('2d');
+
+    const gradient=ctx.createLinearGradient(0,0,1024,512);
+    gradient.addColorStop(0,base);
+    gradient.addColorStop(.5,secondary);
+    gradient.addColorStop(1,base);
+
+    ctx.fillStyle=gradient;
+    ctx.fillRect(0,0,1024,512);
+
+    for(let i=0;i<180;i++){
+        const y=Math.random()*512;
+        const height=2+Math.random()*28;
+
+        ctx.globalAlpha=.04+Math.random()*.2;
+        ctx.fillStyle=Math.random()>.5?'#ffffff':'#160b35';
+        ctx.beginPath();
+        ctx.ellipse(
+            Math.random()*1024,y,
+            60+Math.random()*220,height,
+            0,0,Math.PI*2
+        );
+        ctx.fill();
+    }
+
+    for(let i=0;i<500;i++){
+        ctx.globalAlpha=.04+Math.random()*.13;
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath();
+        ctx.arc(Math.random()*1024,Math.random()*512,Math.random()*3,0,Math.PI*2);
+        ctx.fill();
+    }
+
+    ctx.globalAlpha=1;
+
+    const texture=new THREE.CanvasTexture(canvas);
+    texture.colorSpace=THREE.SRGBColorSpace;
+    return texture;
+}
+
+/* PLANETAS */
+
+const planetData=[
+    {
+        name:'Mundo de los recuerdos',
+        message:'Cada recuerdo bonito merece un lugar especial. Este pequeño mundo guarda momentos que siempre vale la pena recordar.',
+        r:2.5,c:'#9b528e',s:'#e7a6db',x:-17,y:5,z:5,ring:true
+    },
+    {
+        name:'Planeta de los sueños',
+        message:'Que nunca te falten motivos para soñar, descubrir caminos y alcanzar aquello que imaginas.',
+        r:3,c:'#4d438e',s:'#a6a2f5',x:19,y:-4,z:-14,ring:true
+    },
+    {
+        name:'Mundo de las sonrisas',
+        message:'Hay personas que hacen más bonito cualquier día. Este planeta está dedicado a todas esas sonrisas.',
+        r:1.9,c:'#a34f82',s:'#f1a5cf',x:-10,y:-8,z:-20
+    },
+    {
+        name:'Saturno violeta',
+        message:'Incluso en la inmensidad del espacio, siempre hay algo que hace brillar nuestro camino.',
+        r:3.4,c:'#7660a9',s:'#d3b4ed',x:30,y:7,z:12,ring:true
+    },
+    {
+        name:'Planeta de cristal',
+        message:'Que tu mundo siempre esté lleno de luz, tranquilidad y pequeños momentos extraordinarios.',
+        r:1.7,c:'#547fae',s:'#b3d8ed',x:-32,y:10,z:-8
+    },
+    {
+        name:'Mundo rosado',
+        message:'Un pequeño recordatorio de que las cosas más bonitas también pueden ser sencillas.',
+        r:2.4,c:'#a64f94',s:'#f2a6dc',x:8,y:14,z:24,ring:true
+    },
+    {
+        name:'Planeta lunar',
+        message:'Incluso las noches más oscuras tienen estrellas. Nunca olvides lo valioso que eres.',
+        r:1.8,c:'#77758d',s:'#d5d1e8',x:-25,y:-12,z:22
+    },
+    {
+        name:'Mundo de fantasía',
+        message:'Que tu imaginación nunca deje de llevarte a lugares maravillosos.',
+        r:2.6,c:'#77549e',s:'#c5a3ed',x:38,y:-11,z:-25,ring:true
+    },
+    {
+        name:'Pequeño corazón',
+        message:'A veces, los detalles pequeños guardan los sentimientos más grandes.',
+        r:1.4,c:'#c35b9d',s:'#ffb8e4',x:3,y:-17,z:9,heart:true
+    },
+    {
+        name:'Planeta de luz',
+        message:'Que siempre encuentres una razón para seguir brillando.',
+        r:2,c:'#9b754a',s:'#e9c38c',x:-40,y:2,z:16
+    },
+    {
+        name:'Mundo azul',
+        message:'Un universo de posibilidades espera por ti. Nunca dejes de descubrirlo.',
+        r:2.8,c:'#3f679e',s:'#9bc7f5',x:26,y:15,z:31,ring:true
+    },
+    {
+        name:'Corazón estelar',
+        message:'Este pequeño mundo tiene una sola misión: recordarte que eres especial.',
+        r:1.35,c:'#b55b9a',s:'#f7b9e8',x:-3,y:17,z:-29,heart:true
+    }
+];
+
+const planets=[];
+const clickable=[];
+
+function makeHeartGeometry(){
+    const shape=new THREE.Shape();
+
+    shape.moveTo(0,-1.25);
+    shape.bezierCurveTo(-.4,-.85,-1.25,-.25,-1.25,.45);
+    shape.bezierCurveTo(-1.25,1.1,-.45,1.2,0,.65);
+    shape.bezierCurveTo(.45,1.2,1.25,1.1,1.25,.45);
+    shape.bezierCurveTo(1.25,-.25,.4,-.85,0,-1.25);
+
+    return new THREE.ExtrudeGeometry(shape,{
+        depth:.4,
+        bevelEnabled:true,
+        bevelSegments:5,
+        bevelSize:.09,
+        bevelThickness:.09,
+        curveSegments:24
+    });
+}
+
+const heartGeometry=makeHeartGeometry();
+
+planetData.forEach((data,index)=>{
+    const group=new THREE.Group();
+
+    const material=new THREE.MeshStandardMaterial({
+        map:makePlanetTexture(data.c,data.s),
+        roughness:.72,
+        metalness:.12
+    });
+
+    let mesh;
+
+    if(data.heart){
+        mesh=new THREE.Mesh(
+            heartGeometry,
+            new THREE.MeshStandardMaterial({
+                color:data.c,
+                emissive:data.c,
+                emissiveIntensity:.2,
+                metalness:.3,
+                roughness:.35
+            })
+        );
+        mesh.scale.setScalar(data.r*.8);
+    }else{
+        mesh=new THREE.Mesh(
+            new THREE.SphereGeometry(data.r,64,64),
+            material
+        );
+    }
+
+    group.add(mesh);
+
+    if(data.ring){
+        const ring=new THREE.Mesh(
+            new THREE.RingGeometry(data.r*1.4,data.r*2.15,128),
+            new THREE.MeshStandardMaterial({
+                color:data.s,
+                side:THREE.DoubleSide,
+                transparent:true,
+                opacity:.7,
+                roughness:.8
+            })
+        );
+        ring.rotation.x=Math.PI/2.35;
+        ring.rotation.y=.12;
+        group.add(ring);
+
+        const ringOuter=new THREE.Mesh(
+            new THREE.RingGeometry(data.r*2.2,data.r*2.28,128),
+            new THREE.MeshBasicMaterial({
+                color:data.s,
+                side:THREE.DoubleSide,
+                transparent:true,
+                opacity:.35
+            })
+        );
+        ringOuter.rotation.copy(ring.rotation);
+        group.add(ringOuter);
+    }
+
+    if(index%2===0){
+        const moon=new THREE.Mesh(
+            new THREE.SphereGeometry(data.r*.16,24,24),
+            new THREE.MeshStandardMaterial({
+                color:0xdcd9ec,
+                roughness:1
+            })
+        );
+
+        moon.position.set(data.r*1.7,0,0);
+        group.add(moon);
+        group.userData.moon=moon;
+    }
+
+    const glow=new THREE.Sprite(
+        new THREE.SpriteMaterial({
+            map:nebulaTextures[index%3],
+            transparent:true,
+            opacity:.55,
+            blending:THREE.AdditiveBlending,
+            depthWrite:false
+        })
+    );
+    glow.scale.set(data.r*5.5,data.r*5.5,1);
+    group.add(glow);
+
+    group.position.set(data.x,data.y,data.z);
+    group.userData={...data,initialY:data.y,index};
+
+    scene.add(group);
+    planets.push(group);
+
+    mesh.userData.parentPlanet=group;
+    clickable.push(mesh);
+});
+
+/* CONSTELACIÓN */
+
+const constellation=new THREE.Group();
+
+const constellationPoints=[];
+
+for(let i=0;i<=140;i++){
+    const t=i/140*Math.PI*2;
+    const x=16*Math.pow(Math.sin(t),3);
+    const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+
+    constellationPoints.push(new THREE.Vector3(x*.48,y*.48,0));
+}
+
+const constellationLine=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(constellationPoints),
+    new THREE.LineBasicMaterial({
+        color:0xf1b7ff,
+        transparent:true,
+        opacity:.8
+    })
+);
+
+constellation.add(constellationLine);
+
+for(let i=0;i<constellationPoints.length;i+=5){
+    const star=new THREE.Mesh(
+        new THREE.SphereGeometry(.11,12,12),
+        new THREE.MeshBasicMaterial({color:0xffffff})
+    );
+    star.position.copy(constellationPoints[i]);
+    constellation.add(star);
+}
+
+constellation.visible=false;
+scene.add(constellation);
+
+/* FRASES FORMADAS POR PARTÍCULAS */
+
+const phraseCanvas=document.createElement('canvas');
+phraseCanvas.width=1200;
+phraseCanvas.height=260;
+
+const phraseCtx=phraseCanvas.getContext('2d');
+
+const phraseTexture=new THREE.CanvasTexture(phraseCanvas);
+
+const phraseMaterial=new THREE.PointsMaterial({
+    color:0xf6dfff,
+    size:.105,
+    transparent:true,
+    opacity:0,
+    sizeAttenuation:true,
+    blending:THREE.AdditiveBlending,
+    depthWrite:false
+});
+
+const phraseGeometry=new THREE.BufferGeometry();
+
+const phraseCount=2600;
+const phrasePositions=new Float32Array(phraseCount*3);
+const phraseTargets=new Float32Array(phraseCount*3);
+const phrasePoints=new THREE.Points(phraseGeometry,phraseMaterial);
+
+phraseGeometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(phrasePositions,3)
+);
+
+scene.add(phrasePoints);
+phrasePoints.position.set(0,1,0);
+
+const phrases=[
+    'ERES MI UNIVERSO',
+    'ENTRE MILLONES, TÚ',
+    'MI LUGAR FAVORITO',
+    'TÚ HACES BRILLAR LAS ESTRELLAS',
+    'UN UNIVERSO PARA TI'
+];
+
+let phraseIndex=0;
+let phraseTimer=0;
+let phraseVisible=false;
+
+function createPhrase(text){
+    phraseCtx.clearRect(0,0,1200,260);
+    phraseCtx.fillStyle='#ffffff';
+    phraseCtx.textAlign='center';
+    phraseCtx.textBaseline='middle';
+    phraseCtx.font='300 92px Georgia';
+    phraseCtx.fillText(text,600,130);
+
+    const image=phraseCtx.getImageData(0,0,1200,260).data;
+    const points=[];
+
+    for(let y=0;y<260;y+=3){
+        for(let x=0;x<1200;x+=3){
+            const alpha=image[(y*1200+x)*4+3];
+
+            if(alpha>100){
+                points.push({
+                    x:(x-600)*.035,
+                    y:(130-y)*.035
+                });
+            }
+        }
+    }
+
+    for(let i=0;i<phraseCount;i++){
+        const p=points.length?points[Math.floor(Math.random()*points.length)]:{x:0,y:0};
+
+        phraseTargets[i*3]=p.x;
+        phraseTargets[i*3+1]=p.y;
+        phraseTargets[i*3+2]=(Math.random()-.5)*.5;
+
+        phrasePositions[i*3]=(Math.random()-.5)*45;
+        phrasePositions[i*3+1]=(Math.random()-.5)*25;
+        phrasePositions[i*3+2]=(Math.random()-.5)*20;
+    }
+
+    phraseGeometry.attributes.position.needsUpdate=true;
+}
+
+createPhrase(phrases[0]);
+
+/* ESTRELLAS FUGACES */
+
+const comets=[];
+
+function createComet(){
+    const material=new THREE.MeshBasicMaterial({color:0xffffff});
+    const head=new THREE.Mesh(
+        new THREE.SphereGeometry(.13,10,10),
+        material
+    );
+
+    const tail=new THREE.Mesh(
+        new THREE.CylinderGeometry(.015,.07,3.5,8),
+        new THREE.MeshBasicMaterial({
+            color:0xbba5ff,
+            transparent:true,
+            opacity:.65
+        })
+    );
+
+    const group=new THREE.Group();
+    tail.rotation.z=Math.PI/2;
+    tail.position.x=-1.6;
+    group.add(head,tail);
+
+    group.position.set(
+        (Math.random()-.5)*100,
+        25+Math.random()*20,
+        (Math.random()-.5)*90
+    );
+
+    scene.add(group);
+
+    comets.push({object:group,age:0,speed:.3+Math.random()*.3});
+}
+
+/* INTERACCIÓN CON PLANETAS */
+
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+let pointerStart=null;
+
+renderer.domElement.addEventListener('pointerdown',e=>{
+    pointerStart={x:e.clientX,y:e.clientY};
+});
+
+renderer.domElement.addEventListener('pointerup',e=>{
+    if(!pointerStart)return;
+
+    const distance=Math.hypot(
+        e.clientX-pointerStart.x,
+        e.clientY-pointerStart.y
+    );
+
+    if(distance>8){
+        pointerStart=null;
+        return;
+    }
+
+    pointer.x=e.clientX/window.innerWidth*2-1;
+    pointer.y=-(e.clientY/window.innerHeight)*2+1;
+
+    raycaster.setFromCamera(pointer,camera);
+
+    const hits=raycaster.intersectObjects(clickable);
+
+    if(hits.length){
+        const data=hits[0].object.userData.parentPlanet.userData;
+
+        document.getElementById('planetTitle').textContent=data.name;
+        document.getElementById('planetMessage').textContent=data.message;
+        document.getElementById('card').classList.add('show');
+
+        controls.autoRotate=false;
+        document.getElementById('spin').textContent='✧ REANUDAR GIRO';
+    }
+
+    pointerStart=null;
+});
+
+document.getElementById('closeCard').onclick=()=>{
+    document.getElementById('card').classList.remove('show');
+};
+
+/* BOTONES */
+
+document.getElementById('home').onclick=()=>{
+    camera.position.set(0,20,75);
+    controls.target.set(0,0,0);
+    controls.autoRotate=true;
+    constellation.visible=false;
+};
+
+document.getElementById('spin').onclick=()=>{
+    controls.autoRotate=!controls.autoRotate;
+    document.getElementById('spin').textContent=
+        controls.autoRotate?'✧ PAUSAR GIRO':'✧ REANUDAR GIRO';
+};
+
+document.getElementById('constellation').onclick=()=>{
+    constellation.visible=!constellation.visible;
+
+    if(constellation.visible){
+        controls.autoRotate=false;
+        controls.target.set(0,0,0);
+        camera.position.set(0,0,38);
+    }
+};
+
+const letters=[
+    {file:'WhatsApp Image 2026-11-08 at 20.02.03.jpeg',title:'A veces quisiera'},
+    {file:'WhatsApp Image 2026-11-08 at 20.02.03 (1).jpeg',title:'Love you'},
+    {file:'WhatsApp Image 2026-11-08 at 20.02.03 (2).jpeg',title:'Mi luz'},
+    {file:'WhatsApp Image 2026-11-08 at 20.02.03 (3).jpeg',title:'My Love'},
+    {file:'WhatsApp Image 2026-11-08 at 20.02.03 (4).jpeg',title:'Mi estrella'},
+    {file:'WhatsApp Image 2026-11-08 at 20.02.04.jpeg',title:'My angel'},
+    {file:'WhatsApp Image 2026-11-08 at 20.02.04 (1).jpeg',title:'Por eso canto'}
+];
+const lettersGallery=document.getElementById('lettersGallery');
+const letterReader=document.getElementById('letterReader');
+const letterImage=document.getElementById('letterImage');
+const letterCaption=document.getElementById('letterCaption');
+let currentLetter=0;
+
+function letterUrl(file){
+    return './'+encodeURIComponent(file).replaceAll('%2F','/');
+}
+
+function showLetter(index){
+    currentLetter=(index+letters.length)%letters.length;
+    const letter=letters[currentLetter];
+    letterImage.src=letterUrl(letter.file);
+    letterImage.alt=letter.title;
+    letterCaption.textContent=`${letter.title} · ${currentLetter+1} de ${letters.length}`;
+}
+
+const lettersGrid=document.getElementById('lettersGrid');
+letters.forEach((letter,index)=>{
+    const card=document.createElement('button');
+    card.type='button';
+    card.className='letter-card';
+    card.setAttribute('aria-label',`Leer carta ${index+1}: ${letter.title}`);
+
+    const image=document.createElement('img');
+    image.src=letterUrl(letter.file);
+    image.alt='';
+    image.loading='lazy';
+
+    const title=document.createElement('span');
+    title.textContent=letter.title;
+    card.append(image,title);
+    card.addEventListener('click',()=>{
+        showLetter(index);
+        letterReader.classList.add('show');
+    });
+    lettersGrid.append(card);
+});
+
+document.getElementById('lettersOpen').addEventListener('click',()=>{
+    lettersGallery.classList.add('show');
+});
+document.getElementById('closeLetters').addEventListener('click',()=>{
+    lettersGallery.classList.remove('show');
+});
+document.getElementById('closeLetterReader').addEventListener('click',()=>{
+    letterReader.classList.remove('show');
+});
+document.getElementById('previousLetter').addEventListener('click',()=>{
+    showLetter(currentLetter-1);
+});
+document.getElementById('nextLetter').addEventListener('click',()=>{
+    showLetter(currentLetter+1);
+});
+lettersGallery.addEventListener('click',event=>{
+    if(event.target===lettersGallery)lettersGallery.classList.remove('show');
+});
+letterReader.addEventListener('click',event=>{
+    if(event.target===letterReader)letterReader.classList.remove('show');
+});
+
+document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+        document.getElementById('card').classList.remove('show');
+        lettersGallery.classList.remove('show');
+        letterReader.classList.remove('show');
+    }
+
+    if(letterReader.classList.contains('show')){
+        if(e.key==='ArrowRight')showLetter(currentLetter+1);
+        if(e.key==='ArrowLeft')showLetter(currentLetter-1);
+    }
+});
+
+/* MÚSICA */
+
+const audio=document.getElementById('audio');
+const musicButton=document.getElementById('musicButton');
+
+musicButton.onclick=async()=>{
+    if(audio.paused){
+        try{
+            await audio.play();
+            musicButton.textContent='♫ PAUSAR MÚSICA';
+        }catch{
+            musicButton.textContent='NO SE PUDO REPRODUCIR';
+        }
+    }else{
+        audio.pause();
+        musicButton.textContent='♫ ACTIVAR MÚSICA';
+    }
+};
+
+/* RADAR */
+
+const radar=document.getElementById('radar');
+const radarCtx=radar.getContext('2d');
+
+function drawRadar(){
+    const w=radar.width;
+    const h=radar.height;
+
+    radarCtx.clearRect(0,0,w,h);
+    radarCtx.strokeStyle='#b98bce55';
+    radarCtx.lineWidth=1;
+
+    radarCtx.beginPath();
+    radarCtx.ellipse(w/2,h/2,115,75,0,0,Math.PI*2);
+    radarCtx.stroke();
+
+    radarCtx.beginPath();
+    radarCtx.ellipse(w/2,h/2,75,48,0,0,Math.PI*2);
+    radarCtx.stroke();
+
+    radarCtx.fillStyle='#ffb4e7';
+    radarCtx.beginPath();
+    radarCtx.arc(w/2,h/2,4,0,Math.PI*2);
+    radarCtx.fill();
+
+    planets.forEach((planet,i)=>{
+        const x=w/2+planet.position.x*2.1;
+        const y=h/2+planet.position.z*1.35;
+
+        radarCtx.fillStyle=planetData[i].c;
+        radarCtx.beginPath();
+        radarCtx.arc(x,y,4,0,Math.PI*2);
+        radarCtx.fill();
+    });
+}
+
+/* ANIMACIÓN */
+
+const clock=new THREE.Clock();
+let cometTimer=0;
+let phraseElapsed=0;
+let quoteIndex=0;
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    const delta=Math.min(clock.getDelta(),.04);
+    const elapsed=clock.elapsedTime;
+
+    controls.update();
+
+    galaxy.rotation.y+=delta*.009;
+    dust.rotation.y+=delta*.003;
+    nebulaGroup.rotation.y+=delta*.0015;
+
+    nucleus.scale.setScalar(1+Math.sin(elapsed*1.4)*.035);
+    nucleusGlow.material.opacity=.6+Math.sin(elapsed)*.12;
+
+    planets.forEach((planet,index)=>{
+        const data=planet.userData;
+
+        planet.rotation.y+=delta*.12;
+        planet.position.y=data.initialY+Math.sin(elapsed*.45+index)*.25;
+
+        if(data.moon){
+            const angle=elapsed*.6+index;
+            data.moon.position.x=Math.cos(angle)*data.r*1.8;
+            data.moon.position.z=Math.sin(angle)*data.r*1.8;
+        }
+    });
+
+    constellation.rotation.y=Math.sin(elapsed*.3)*.08;
+
+    /* Aparición gradual de las frases */
+    phraseTimer+=delta;
+    phraseElapsed+=delta;
+
+    if(phraseTimer>9){
+        phraseTimer=0;
+        phraseIndex=(phraseIndex+1)%phrases.length;
+        createPhrase(phrases[phraseIndex]);
+    }
+
+    const targetOpacity=phraseElapsed%9>1&&phraseElapsed%9<6?.95:0;
+    phraseMaterial.opacity=THREE.MathUtils.lerp(
+        phraseMaterial.opacity,targetOpacity,delta*.8
+    );
+
+    for(let i=0;i<phraseCount;i++){
+        const k=i*3;
+
+        phrasePositions[k]+=
+            (phraseTargets[k]-phrasePositions[k])*.035;
+        phrasePositions[k+1]+=
+            (phraseTargets[k+1]-phrasePositions[k+1])*.035;
+        phrasePositions[k+2]+=
+            (phraseTargets[k+2]-phrasePositions[k+2])*.035;
+    }
+
+    phraseGeometry.attributes.position.needsUpdate=true;
+
+    /* Texto cinematográfico */
+    cometTimer+=delta;
+
+    if(cometTimer>4){
+        createComet();
+        cometTimer=0;
+    }
+
+    for(let i=comets.length-1;i>=0;i--){
+        const comet=comets[i];
+
+        comet.object.position.x-=comet.speed;
+        comet.object.position.y-=comet.speed*.55;
+        comet.age+=delta;
+
+        if(comet.age>5){
+            scene.remove(comet.object);
+            comets.splice(i,1);
+        }
+    }
+
+    drawRadar();
+    renderer.render(scene,camera);
+}
+
+/* INICIO */
+
+window.addEventListener('resize',()=>{
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+});
+
+animate();
+
+const loading=document.getElementById('loading');
+
+setTimeout(()=>{
+    loading.style.opacity='0';
+    setTimeout(()=>loading.remove(),1100);
+},900);
+
+</script>
+</body>
+</html>
